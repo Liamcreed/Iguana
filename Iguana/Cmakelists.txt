@@ -1,0 +1,27 @@
+cmake_minimum_required(VERSION 3.14)
+project(Iguana)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+include_directories(Iguana)
+
+find_package(Vulkan REQUIRED FATAL_ERROR)
+include_directories(${Vulkan_INCLUDE_DIRS})
+
+file(GLOB SOURCES "src/Iguana/*/*.cpp" )
+add_library(Iguana ${SOURCES})
+
+target_link_libraries(
+    Iguana
+    #Platform
+    ${Vulkan_LIBRARIES}
+    "-framework Cocoa"
+    "-framework IOKit"
+    "-framework CoreVideo"
+    #3rd party
+    assimp 
+    glfw
+)
+target_precompile_headers(Iguana PUBLIC "src/pch.h")
+    

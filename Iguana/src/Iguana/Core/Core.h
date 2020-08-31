@@ -1,12 +1,9 @@
+#pragma once
 #ifdef NDEBUG
 #define RELEASE
 #else
 #define DEBUG
 #endif
-
-#define GK_ASSERT(e) \
-    if (!(e))         \
-        exit(-1);
 
 #define RESET "\033[0m"
 #define BLACK "\033[30m"              /* Black */

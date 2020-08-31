@@ -1,1 +1,29 @@
+cmake_minimum_required(VERSION 3.17)
 project(Iguana-Editor)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+#------------External-Libs------------#
+find_package(Vulkan REQUIRED FATAL_ERROR)
+include_directories(${Vulkan_INCLUDE_DIRS})
+
+include_directories(Iguana/vendor/GLFW/include)
+link_directories(Iguana/vendor/GLFW/lib)
+
+include_directories(Iguana/vendor/assimp/include)
+link_directories(Iguana/vendor/assimp/lib)
+include_directories(Iguana/vendor/glm/include)
+include_directories(Iguana/vendor/stb_image)
+
+#------------Iguana-Libs------------#
+include_directories(Iguana/src/Iguana)
+include_directories(Iguana/src)
+
+add_subdirectory(Iguana)
+
+include_directories(GecIguanako-Editor/src)
+add_subdirectory(Iguana-Editor)
+
+
+
