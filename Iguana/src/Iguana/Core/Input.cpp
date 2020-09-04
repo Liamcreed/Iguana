@@ -16,6 +16,7 @@ namespace Iguana
             return true;
         return false;
     }
+    
     /* Only returns true when key is pressed once!*/
     bool Input::IsKeyPress(KeyCode key)
     {

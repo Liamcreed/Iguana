@@ -23,20 +23,13 @@ namespace Iguana
         bool IsClosed() { return glfwWindowShouldClose(m_GLFWWindow); }
         bool IsMinimized();
         bool IsMaximized();
+        void Vsync(bool vsync);
 
         int GetWidth() { return m_Width; }
         int GetHeight() { return m_Height; }
 
         std::string &GetTitle() { return m_Title; }
         GLFWwindow *GetGLFWWindow() { return m_GLFWWindow; }
-
-        void Vsync(bool vsync)
-        {
-            if (vsync)
-                glfwSwapInterval(1);
-            else
-                glfwSwapInterval(0);
-        }
 
         //--------Calbacks---------//
         static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);

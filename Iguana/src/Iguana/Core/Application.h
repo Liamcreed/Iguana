@@ -8,8 +8,8 @@ namespace Iguana
     private:
         static Application* m_Instance;
         Window* m_Window;
+
         bool m_Running = false;
-        
     public:
         Application(std::string title = "Iguana Application");
         ~Application();
@@ -17,8 +17,8 @@ namespace Iguana
         void Run();
         void Close();
         
-        Application& Get(){return *m_Instance;}
+        static Application* Get(){return m_Instance;}
+        Window* GetWindow(){return m_Window;}
     };
-    Application* CreateApp();
-    //To be defined in the Client application
+    
 }

@@ -1,10 +1,11 @@
 #include "pch.h"
 #include "Application.h"
+#include "Iguana/Platform/Vulkan/Renderer.h"
 
 namespace Iguana
 {
     Application *Application::m_Instance = nullptr;
-
+    
     Application::Application(std::string title)
     {
         m_Instance = this;
@@ -16,18 +17,21 @@ namespace Iguana
     }
     void Application::Run()
     {
+        Renderer::Create();
+
         while (m_Running)
         {
-            std::cout<<Input::GetAxis("Horizontal")<<std::endl;
-
+            if (!m_Window->IsMinimized())
+            {
+            
+            }
             m_Window->Update();
-            if (m_Window->IsClosed())
-                Close();
         }
     }
     void Application::Close()
     {
         m_Running = false;
+        Renderer::Clean();
     }
     Application::~Application()
     {

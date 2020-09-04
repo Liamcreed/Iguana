@@ -5,6 +5,21 @@
 #define DEBUG
 #endif
 
+#ifdef WIN32
+#define PLATFORM_WINDOWS
+#elif __APPLE__
+#define PLATFORM_APPLE
+#endif
+
+template <typename T>
+using Ref = std::shared_ptr<T>;
+
+template <typename T, typename... Args>
+constexpr Ref<T> CreateRef(Args &&... args)
+{
+    return std::make_shared<T>(std::forward<Args>(args)...);
+}
+
 #define RESET "\033[0m"
 #define BLACK "\033[30m"              /* Black */
 #define RED "\033[31m"                /* Red */
@@ -23,18 +38,15 @@
 #define BOLDCYAN "\033[1m\033[36m"    /* Bold Cyan */
 #define BOLDWHITE "\033[1m\033[37m"   /* Bold White */
 
-#define ERROR "\033[1;31m[ERROR]\033[0m " 
-#define VULKAN_ERROR "\033[1;31m[VULKAN ERROR]\033[0m " 
+#define ERROR "\033[1;31m[ERROR]\033[0m "
+#define VULKAN_ERROR "\033[1;31m[VULKAN ERROR]\033[0m "
 #define INFO "\x1B[1;34m[INFO]\033[0m "
-#define WARNING "\x1B[1;33m[WARNING]\033[0m " 
+#define WARNING "\x1B[1;33m[WARNING]\033[0m "
 
-#define LOG(type) std::cerr<<type
-
-template <typename T>
-using Ref = std::shared_ptr<T>;
-
-template <typename T, typename... Args>
-constexpr Ref<T> CreateRef(Args &&... args)
-{
-    return std::make_shared<T>(std::forward<Args>(args)...);
+#define LOG(type) std::cerr << type
+#define VK_CALL(x) \
+    if (x != VK_SUCCESS)\
+{\
+    std::cout << VULKAN_ERROR << __FILE__ << " " << __LINE__ << std::endl;\
+    abort();\
 }

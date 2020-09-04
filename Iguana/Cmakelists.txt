@@ -7,9 +7,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include_directories(Iguana)
 
 find_package(Vulkan REQUIRED FATAL_ERROR)
-include_directories(${Vulkan_INCLUDE_DIRS})
 
-file(GLOB SOURCES "src/Iguana/*/*.cpp" )
+include_directories(${Vulkan_INCLUDE_DIRS})
+include_directories(Iguana/vendor/GLFW/include)
+include_directories(Iguana/vendor/assimp/include)
+include_directories(Iguana/vendor/glm/include)
+include_directories(Iguana/vendor/stb_image)
+include_directories(Iguana/src/Iguana)
+include_directories(Iguana/src)
+
+file(GLOB SOURCES "src/Iguana/*/*.cpp" "src/Iguana/*.cpp" "src/Iguana/*/*/*.cpp")
 add_library(Iguana ${SOURCES})
 
 target_link_libraries(

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Window.h"
 #include "Input.h"
+#include "Application.h"
 namespace Iguana
 {
     Window::Window(std::string &title, uint32_t width, uint32_t height)
@@ -13,7 +14,7 @@ namespace Iguana
         }
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
         m_GLFWWindow = glfwCreateWindow(m_Width, m_Height, m_Title.c_str(), nullptr, nullptr);
         if (m_GLFWWindow == nullptr)
@@ -38,6 +39,8 @@ namespace Iguana
     void Window::Update()
     {
         glfwPollEvents();
+        if (this->IsClosed())
+                Application::Get()->Close();
     }
     Window::~Window()
     {
@@ -51,10 +54,17 @@ namespace Iguana
     {
         return Minimized;
     }
-    
-    bool IsMaximized()
+
+    bool Window::IsMaximized()
     {
         return Maximized;
+    }
+    void Window::Vsync(bool vsync)
+    {
+        if (vsync)
+            glfwSwapInterval(1);
+        else
+            glfwSwapInterval(0);
     }
 
     void Window::key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
