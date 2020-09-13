@@ -59,14 +59,46 @@ namespace Iguana
         }
         return extensions;
     }
+    bool CheckValidationLayerSupport()
+    {
+        uint32_t layerCount;
+        vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
-    VkInstance Renderer::m_Instance;
-    VkPhysicalDevice Renderer::m_PhysicalDevice = VK_NULL_HANDLE;
-    VkDebugUtilsMessengerEXT Renderer::m_DebugMessenger;
-    VkDevice Renderer::m_Device;
+        std::vector<VkLayerProperties> availableLayers(layerCount);
+        vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+        for (const char *layerName : validationLayers)
+        {
+            bool layerFound = false;
+
+            for (const auto &layerProperties : availableLayers)
+            {
+                if (strcmp(layerName, layerProperties.layerName) == 0)
+                {
+                    layerFound = true;
+                    break;
+                }
+            }
+
+            if (!layerFound)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    VkInstance Renderer::mInstance;
+    VkPhysicalDevice Renderer::mPhysicalDevice = VK_NULL_HANDLE;
+    VkDebugUtilsMessengerEXT Renderer::mDebugMessenger;
+    VkDevice Renderer::mDevice;
 
     void Renderer::Create()
     {
+        if (validationLayersEnabled && !CheckValidationLayerSupport())
+        {
+            LOG(VULKAN_ERROR) << "Validation layers requested but not available!" << std::endl;
+        }
         VkApplicationInfo appInfo{};
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
         appInfo.pNext = NULL;
@@ -99,31 +131,28 @@ namespace Iguana
             instanceInfo.pNext = nullptr;
         }
 
-        VK_CALL(vkCreateInstance(&instanceInfo, nullptr, &m_Instance));
+        VK_CALL(vkCreateInstance(&instanceInfo, nullptr, &mInstance));
 
         if (validationLayersEnabled)
         {
             VkDebugUtilsMessengerCreateInfoEXT createInfo;
             populateDebugMessengerCreateInfo(createInfo);
 
-            VK_CALL(CreateDebugUtilsMessengerEXT(m_Instance, &createInfo, nullptr, &m_DebugMessenger));
+            VK_CALL(CreateDebugUtilsMessengerEXT(mInstance, &createInfo, nullptr, &mDebugMessenger));
         }
         uint32_t physicalDeviceCount = 0;
-        vkEnumeratePhysicalDevices(m_Instance, &physicalDeviceCount, nullptr);
+        vkEnumeratePhysicalDevices(mInstance, &physicalDeviceCount, nullptr);
 
         VkPhysicalDevice *physicalDevices = new VkPhysicalDevice[physicalDeviceCount];
-        vkEnumeratePhysicalDevices(m_Instance, &physicalDeviceCount, physicalDevices);
+        vkEnumeratePhysicalDevices(mInstance, &physicalDeviceCount, physicalDevices);
 
+        bool dedicatedGPU = false;
         for (int i = 0; i < physicalDeviceCount; i++)
         {
             VkPhysicalDeviceProperties props;
             vkGetPhysicalDeviceProperties(physicalDevices[i], &props);
-            LOG(INFO) << "Device:               " << props.deviceName << std::endl;
-
             VkPhysicalDeviceFeatures features;
             vkGetPhysicalDeviceFeatures(physicalDevices[i], &features);
-            LOG(INFO) << "Geometry Shader:      " << features.geometryShader << std::endl;
-
             VkPhysicalDeviceMemoryProperties memoryProps;
             vkGetPhysicalDeviceMemoryProperties(physicalDevices[i], &memoryProps);
 
@@ -131,41 +160,64 @@ namespace Iguana
             vkGetPhysicalDeviceQueueFamilyProperties(physicalDevices[i], &queueFamilyCount, NULL);
             VkQueueFamilyProperties *queueFamilyProps = new VkQueueFamilyProperties[queueFamilyCount];
             vkGetPhysicalDeviceQueueFamilyProperties(physicalDevices[i], &queueFamilyCount, queueFamilyProps);
+#ifdef DEBUG
+            LOG(INFO) << "Device:               " << props.deviceName << std::endl;
+            LOG(INFO) << "Geometry Shader:      " << features.geometryShader << std::endl;
             LOG(INFO) << "Queue family count:   " << queueFamilyCount << std::endl;
+#endif
+            
+            mPhysicalDevice = physicalDevices[i];
+            
             delete[] queueFamilyProps;
         }
+        delete physicalDevices;
 
         VkDeviceQueueCreateInfo queueCreateInfo{};
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         queueCreateInfo.pNext = NULL;
         queueCreateInfo.flags = 0;
         queueCreateInfo.queueFamilyIndex = 0; //TODO: choose correct family index
-        queueCreateInfo.queueCount = 4;       //TODO: choose correct count
-        queueCreateInfo.pQueuePriorities = NULL;
+        queueCreateInfo.queueCount = 1;       //TODO: choose correct count //FIXME: it was originaly 4 instead of 1
+        float queuePriorities[] = {1.0f, 1.0f, 1.0f, 1.0f};
+        queueCreateInfo.pQueuePriorities = queuePriorities;
 
         VkPhysicalDeviceFeatures usedFeatures = {};
 
         VkDeviceCreateInfo deviceCreateInfo{};
         deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
         deviceCreateInfo.pNext = NULL;
-        deviceCreateInfo.flags = 0; 
-        deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
-        deviceCreateInfo.queueCreateInfoCount =  0;
-        deviceCreateInfo.enabledLayerCount =  0;
-        deviceCreateInfo.ppEnabledLayerNames = NULL;
-        deviceCreateInfo.enabledExtensionCount = 0;
-        deviceCreateInfo.ppEnabledExtensionNames = NULL;
-        deviceCreateInfo.pEnabledFeatures =  &usedFeatures;
+        deviceCreateInfo.flags = 0;
 
-        VK_CALL(vkCreateDevice(physicalDevices[0], &deviceCreateInfo, NULL, &m_Device));
+        deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
+        deviceCreateInfo.queueCreateInfoCount = 1;
+
+        deviceCreateInfo.pEnabledFeatures = &usedFeatures;
+
+        deviceCreateInfo.enabledExtensionCount = 0;
+
+        if (validationLayersEnabled)
+        {
+            deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+            deviceCreateInfo.ppEnabledLayerNames = validationLayers.data();
+        }
+        else
+        {
+            deviceCreateInfo.enabledLayerCount = 0;
+        }
+
+        VK_CALL(vkCreateDevice(mPhysicalDevice, &deviceCreateInfo, NULL, &mDevice));
+
+        VK_CALL(vkDeviceWaitIdle(mDevice));
     }
     void Renderer::Clean()
     {
+        vkDestroyDevice(mDevice, nullptr);
+
         if (validationLayersEnabled)
         {
-            DestroyDebugUtilsMessengerEXT(m_Instance, m_DebugMessenger, nullptr);
+            DestroyDebugUtilsMessengerEXT(mInstance, mDebugMessenger, nullptr);
         }
 
-        vkDestroyInstance(m_Instance, nullptr);
+        vkDestroyInstance(mInstance, nullptr);
     }
 } // namespace Iguana

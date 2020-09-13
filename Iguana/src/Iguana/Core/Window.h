@@ -9,10 +9,10 @@ namespace Iguana
     class Window
     {
     private:
-        std::string m_Title = "Application";
-        uint32_t m_Width, m_Height;
+        std::string mTitle = "Application";
+        uint32_t mWidth, mHeight;
 
-        GLFWwindow *m_GLFWWindow;
+        GLFWwindow *mGLFWWindow;
 
     public:
         void Update();
@@ -20,16 +20,16 @@ namespace Iguana
         Window(std::string &title, uint32_t width, uint32_t height);
         ~Window();
 
-        bool IsClosed() { return glfwWindowShouldClose(m_GLFWWindow); }
+        bool IsClosed() { return glfwWindowShouldClose(mGLFWWindow); }
         bool IsMinimized();
         bool IsMaximized();
         void Vsync(bool vsync);
 
-        int GetWidth() { return m_Width; }
-        int GetHeight() { return m_Height; }
+        int GetWidth() { return mWidth; }
+        int GetHeight() { return mHeight; }
 
-        std::string &GetTitle() { return m_Title; }
-        GLFWwindow *GetGLFWWindow() { return m_GLFWWindow; }
+        std::string &GetTitle() { return mTitle; }
+        GLFWwindow *GetGLFWWindow() { return mGLFWWindow; }
 
         //--------Calbacks---------//
         static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);

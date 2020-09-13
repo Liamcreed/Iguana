@@ -6,10 +6,10 @@ namespace Iguana
     class Application
     {
     private:
-        static Application* m_Instance;
-        Window* m_Window;
+        static Application* mInstance;
+        Window* mWindow;
 
-        bool m_Running = false;
+        bool mRunning = false;
     public:
         Application(std::string title = "Iguana Application");
         ~Application();
@@ -17,8 +17,8 @@ namespace Iguana
         void Run();
         void Close();
         
-        static Application* Get(){return m_Instance;}
-        Window* GetWindow(){return m_Window;}
+        static Application* Get(){return mInstance;}
+        Window* GetWindow(){return mWindow;}
     };
     
 }

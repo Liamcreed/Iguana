@@ -4,37 +4,37 @@
 
 namespace Iguana
 {
-    Application *Application::m_Instance = nullptr;
+    Application *Application::mInstance = nullptr;
     
     Application::Application(std::string title)
     {
-        m_Instance = this;
+        mInstance = this;
 
-        m_Window = new Window(title, 1280, 720);
-        m_Window->Vsync(true);
+        mWindow = new Window(title, 1280, 720);
+        mWindow->Vsync(true);
 
-        m_Running = true;
+        mRunning = true;
     }
     void Application::Run()
     {
         Renderer::Create();
 
-        while (m_Running)
+        while (mRunning)
         {
-            if (!m_Window->IsMinimized())
+            if (!mWindow->IsMinimized())
             {
             
             }
-            m_Window->Update();
+            mWindow->Update();
         }
     }
     void Application::Close()
     {
-        m_Running = false;
+        mRunning = false;
         Renderer::Clean();
     }
     Application::~Application()
     {
-        delete m_Window;
+        delete mWindow;
     }
 } // namespace Iguana

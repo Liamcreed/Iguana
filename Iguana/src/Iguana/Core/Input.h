@@ -10,12 +10,12 @@ namespace Iguana
     class Input
     {
     private:
-        static bool m_Keys[MAX_KEYS];
-        static bool m_MouseButtons[MAX_BUTTONS];
+        static bool mKeys[MAX_KEYS];
+        static bool mMouseButtons[MAX_BUTTONS];
 
-        static double m_MouseX, m_MouseY;
-        static float m_ScrollX, m_ScrollY;
-        static int m_Action;
+        static double mMouseX, mMouseY;
+        static float mScrollX, mScrollY;
+        static int mAction;
 
     public:
         static bool IsKeyPressed(KeyCode key);
@@ -27,7 +27,7 @@ namespace Iguana
         static bool IsMouseButtonPress(int button);
 
         static int GetAxis(std::string axis);
-        static glm::vec2 GetMousePos() { return glm::vec2(m_MouseX, m_MouseY); }
+        static glm::vec2 GetMousePos() { return glm::vec2(mMouseX, mMouseY); }
         static glm::vec2 GetScrollWheel();
 
     private:
