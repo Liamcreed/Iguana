@@ -13,7 +13,7 @@ namespace Iguana
             glfwTerminate();
         }
 
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
         mGLFWWindow = glfwCreateWindow(mWidth, mHeight, mTitle.c_str(), nullptr, nullptr);
@@ -66,6 +66,7 @@ namespace Iguana
         else
             glfwSwapInterval(0);
     }
+
 
     void Window::key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
     {

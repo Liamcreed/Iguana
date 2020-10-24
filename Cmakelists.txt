@@ -6,8 +6,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #--------------Libs--------------#
 find_package(Vulkan REQUIRED FATAL_ERROR)
-link_directories(Iguana/vendor/GLFW/lib)
-link_directories(Iguana/vendor/assimp/lib)
+link_directories(Iguana/vendor/GLFW/lib/src)
+#link_directories(Iguana/vendor/assimp/lib)
+
+add_library(glad "Iguana/vendor/glad/src/glad.c")
+include_directories(Iguana/vendor/glad/include)
 
 #-------------Include------------#
 include_directories(${Vulkan_INCLUDE_DIRS})
